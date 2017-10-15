@@ -16,8 +16,16 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
     let sceneLocationView = SceneLocationView()
     
     let mapView = MKMapView()
+    let saveLocationButton = UIButton()
     var userAnnotation: MKPointAnnotation?
     var locationEstimateAnnotation: MKPointAnnotation?
+    
+    var carLatitude: CLLocationDegrees?
+    var carLongitude: CLLocationDegrees?
+    
+    var nodesInScene:[LocationNode] = []
+    
+    var hasSavedLocation:Bool = false
     
     var updateUserLocationTimer: Timer?
     
@@ -41,40 +49,36 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        drawInfoLabel()
+        setupInfoLabelTimer()
+        drawSaveLocationButton()
+        maybeAddMapView()
+        setupSceneLocationView()
+    }
+    
+    func drawInfoLabel() {
         infoLabel.font = UIFont.systemFont(ofSize: 10)
         infoLabel.textAlignment = .left
         infoLabel.textColor = UIColor.white
         infoLabel.numberOfLines = 0
-        sceneLocationView.addSubview(infoLabel)
-        
+    }
+    
+    func setupInfoLabelTimer() {
         updateInfoLabelTimer = Timer.scheduledTimer(
             timeInterval: 0.1,
             target: self,
             selector: #selector(ViewController.updateInfoLabel),
             userInfo: nil,
             repeats: true)
-        
-        //Set to true to display an arrow which points north.
-        //Checkout the comments in the property description and on the readme on this.
-//        sceneLocationView.orientToTrueNorth = false
-        
-//        sceneLocationView.locationEstimateMethod = .coreLocationDataOnly
-        sceneLocationView.showAxesNode = true
-        sceneLocationView.locationDelegate = self
-        
-        if displayDebugging {
-            sceneLocationView.showFeaturePoints = true
-        }
-        
-        //Currently set to Canary Wharf
-        let pinCoordinate = CLLocationCoordinate2D(latitude: 51.504607, longitude: -0.019592)
-        let pinLocation = CLLocation(coordinate: pinCoordinate, altitude: 236)
-        let pinImage = UIImage(named: "pin")!
-        let pinLocationNode = LocationAnnotationNode(location: pinLocation, image: pinImage)
-        sceneLocationView.addLocationNodeWithConfirmedLocation(locationNode: pinLocationNode)
-        
-        view.addSubview(sceneLocationView)
-        
+    }
+    
+    func drawSaveLocationButton() {
+        saveLocationButton.backgroundColor = .blue
+        saveLocationButton.addTarget(self, action: #selector(saveLocation), for: .touchUpInside)
+        view.addSubview(saveLocationButton)
+    }
+    
+    func maybeAddMapView() {
         if showMapView {
             mapView.delegate = self
             mapView.showsUserLocation = true
@@ -88,13 +92,88 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
                 userInfo: nil,
                 repeats: true)
         }
+    }
+    
+    func setupSceneLocationView() {
+        sceneLocationView.addSubview(infoLabel)
         
+        //Set to true to display an arrow which points north.
+        //Checkout the comments in the property description and on the readme on this.
+        //        sceneLocationView.orientToTrueNorth = false
+        
+        //        sceneLocationView.locationEstimateMethod = .coreLocationDataOnly
+        sceneLocationView.showAxesNode = false
+        sceneLocationView.locationDelegate = self
+        
+        if displayDebugging {
+            sceneLocationView.showFeaturePoints = true
+        }
+        
+        view.addSubview(sceneLocationView)
+        
+    }
+    
+    @objc func saveLocation() {
+        
+        if !hasSavedLocation {
+            removeAllNodesFromScene()
+            
+            let image = UIImage(named: "pin")!
+            let carLocationNode = LocationAnnotationNode(location: nil, image: image)
+            carLocationNode.scaleRelativeToDistance = true
+            sceneLocationView.addLocationNodeForCurrentPosition(locationNode: carLocationNode)
+            
+            let defaults = UserDefaults.standard
+            defaults.set(String(carLocationNode.location.coordinate.latitude), forKey: "latitude")
+            defaults.set(String(carLocationNode.location.coordinate.longitude), forKey: "longitude")
+            defaults.synchronize()
+            
+            nodesInScene.append(carLocationNode)
+            hasSavedLocation = true
+        }
+    }
+    
+    func removeAllNodesFromScene() {
+        for node in nodesInScene {
+            sceneLocationView.removeLocationNode(locationNode: node)
+        }
+        
+        let defaults = UserDefaults.standard
+        defaults.set("", forKey: "latitude")
+        defaults.set("", forKey: "longitude")
+        defaults.synchronize()
+        
+        nodesInScene = []
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         DDLogDebug("run")
         sceneLocationView.run()
+        maybeAddCarLocation()
+    }
+    
+    func maybeAddCarLocation() {
+        //See if we have a saved location, if so, add the node to the view
+        
+        let defaults = UserDefaults.standard
+        let lat = defaults.string(forKey: "latitude")!
+        let long = defaults.string(forKey: "longitude")!
+        
+        if lat != "" {
+            hasSavedLocation = true
+            
+            carLatitude = Double(lat)
+            carLongitude = Double(long)
+            
+            let carCoordinate = CLLocationCoordinate2D(latitude: carLatitude!, longitude: carLongitude!)
+            let carLocation = CLLocation(coordinate: carCoordinate, altitude: 200)
+            let pinImage = UIImage(named: "pin")!
+            let carLocationNode = LocationAnnotationNode(location: carLocation, image: pinImage)
+            sceneLocationView.addLocationNodeWithConfirmedLocation(locationNode: carLocationNode)
+            
+            nodesInScene.append(carLocationNode)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -108,6 +187,10 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         
+        layoutFindCarSubviews()
+    }
+    
+    func layoutFindCarSubviews() {
         sceneLocationView.frame = CGRect(
             x: 0,
             y: 0,
@@ -127,29 +210,20 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
             y: self.view.frame.size.height / 2,
             width: self.view.frame.size.width,
             height: self.view.frame.size.height / 2)
+        
+        saveLocationButton.frame = CGRect(x: 0,
+                                          y: 0,
+                                          width: self.view.frame.size.width/4,
+                                          height: self.view.frame.size.height/8)
     }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Release any cached data, images, etc that aren't in use.
-    }
-    
+
     @objc func updateUserLocation() {
         if let currentLocation = sceneLocationView.currentLocation() {
             DispatchQueue.main.async {
                 
                 if let bestEstimate = self.sceneLocationView.bestLocationEstimate(),
                     let position = self.sceneLocationView.currentScenePosition() {
-                    DDLogDebug("")
-                    DDLogDebug("Fetch current location")
-                    DDLogDebug("best location estimate, position: \(bestEstimate.position), location: \(bestEstimate.location.coordinate), accuracy: \(bestEstimate.location.horizontalAccuracy), date: \(bestEstimate.location.timestamp)")
-                    DDLogDebug("current position: \(position)")
-                    
                     let translation = bestEstimate.translatedLocation(to: position)
-                    
-                    DDLogDebug("translation: \(translation)")
-                    DDLogDebug("translated location: \(currentLocation)")
-                    DDLogDebug("")
                 }
                 
                 if self.userAnnotation == nil {
@@ -232,10 +306,12 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
                         print("right side of the screen")
                         sceneLocationView.moveSceneHeadingClockwise()
                     } else {
+                        removeAllNodesFromScene()
                         let image = UIImage(named: "pin")!
                         let annotationNode = LocationAnnotationNode(location: nil, image: image)
                         annotationNode.scaleRelativeToDistance = true
                         sceneLocationView.addLocationNodeForCurrentPosition(locationNode: annotationNode)
+                        nodesInScene.append(annotationNode)
                     }
                 }
             }
@@ -270,11 +346,9 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
     //MARK: SceneLocationViewDelegate
     
     func sceneLocationViewDidAddSceneLocationEstimate(sceneLocationView: SceneLocationView, position: SCNVector3, location: CLLocation) {
-        DDLogDebug("add scene location estimate, position: \(position), location: \(location.coordinate), accuracy: \(location.horizontalAccuracy), date: \(location.timestamp)")
     }
     
     func sceneLocationViewDidRemoveSceneLocationEstimate(sceneLocationView: SceneLocationView, position: SCNVector3, location: CLLocation) {
-        DDLogDebug("remove scene location estimate, position: \(position), location: \(location.coordinate), accuracy: \(location.horizontalAccuracy), date: \(location.timestamp)")
     }
     
     func sceneLocationViewDidConfirmLocationOfNode(sceneLocationView: SceneLocationView, node: LocationNode) {
