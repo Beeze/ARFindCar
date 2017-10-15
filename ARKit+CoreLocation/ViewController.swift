@@ -88,11 +88,20 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
         setupSceneLocationView()
         
         view.bringSubview(toFront: saveLocationButton)
+        view.bringSubview(toFront: learn_more_button)
     }
     
     func drawLearnMoreButton() {
         learn_more_button.backgroundColor = .red
+        learn_more_button.isHidden = true
+        learn_more_button.addTarget(self, action: #selector(showDetailView), for: .touchUpInside)
         view.addSubview(learn_more_button)
+    }
+    
+    @objc func showDetailView() {
+        let vc = self.storyboard?.instantiateViewController(withIdentifier: "detailViewController") as! CarDetailViewController
+        vc.carName = self.latestPrediction
+        self.present(vc, animated: true, completion: nil)
     }
     
     func loopCoreMLUpdate() {
@@ -311,8 +320,8 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
     @objc func saveLocation() {
         
 //        if !hasSavedLocation {
-            removeAllNodesFromScene()
-            
+//            removeAllNodesFromScene()
+        
             let image = UIImage(named: "pin")!
             let carLocationNode = LocationAnnotationNode(location: nil, image: image)
             carLocationNode.scaleRelativeToDistance = true
@@ -412,7 +421,7 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
                                           height: self.view.frame.size.height/8)
         
         learn_more_button.frame = CGRect(x: self.view.frame.size.width/2,
-                                         y: self.view.frame.size.height,
+                                         y: self.view.frame.size.height - 100,
                                          width: self.view.frame.size.width/5,
                                          height: self.view.frame.size.height/8)
     }
@@ -506,7 +515,7 @@ class ViewController: UIViewController, MKMapViewDelegate, SceneLocationViewDele
                         print("right side of the screen")
                         sceneLocationView.moveSceneHeadingClockwise()
                     } else {
-                        removeAllNodesFromScene()
+//                        removeAllNodesFromScene()
                         let image = UIImage(named: "pin")!
                         let annotationNode = LocationAnnotationNode(location: nil, image: image)
                         annotationNode.scaleRelativeToDistance = true

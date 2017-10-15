@@ -10,6 +10,7 @@
 		4901EF051F1B7D560067870D /* SceneLocationEstimate+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4901EF041F1B7D560067870D /* SceneLocationEstimate+Extensions.swift */; };
 		49099E391F24BAE5007B76FD /* SCNVector3+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49099E381F24BAE5007B76FD /* SCNVector3+Extensions.swift */; };
 		495B8E661F93346400C45AF7 /* CarRecognition.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 495B8E651F93345D00C45AF7 /* CarRecognition.mlmodel */; };
+		495B8E681F9349CC00C45AF7 /* CarDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 495B8E671F9349CC00C45AF7 /* CarDetailViewController.swift */; };
 		49A3FBDC1F09988100AA59C8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A3FBDB1F09988100AA59C8 /* AppDelegate.swift */; };
 		49A3FBE01F09988100AA59C8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A3FBDF1F09988100AA59C8 /* ViewController.swift */; };
 		49A3FBE51F09988100AA59C8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 49A3FBE41F09988100AA59C8 /* Assets.xcassets */; };
@@ -31,6 +32,7 @@
 		4901EF041F1B7D560067870D /* SceneLocationEstimate+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SceneLocationEstimate+Extensions.swift"; sourceTree = "<group>"; };
 		49099E381F24BAE5007B76FD /* SCNVector3+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCNVector3+Extensions.swift"; sourceTree = "<group>"; };
 		495B8E651F93345D00C45AF7 /* CarRecognition.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = CarRecognition.mlmodel; sourceTree = "<group>"; };
+		495B8E671F9349CC00C45AF7 /* CarDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CarDetailViewController.swift; sourceTree = "<group>"; };
 		49A3FBD81F09988100AA59C8 /* ARKit+CoreLocation.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "ARKit+CoreLocation.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		49A3FBDB1F09988100AA59C8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		49A3FBDF1F09988100AA59C8 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -86,6 +88,7 @@
 				49A3FBF31F099A4A00AA59C8 /* ARKit+CoreLocation Sources */,
 				49A3FBDB1F09988100AA59C8 /* AppDelegate.swift */,
 				49A3FBDF1F09988100AA59C8 /* ViewController.swift */,
+				495B8E671F9349CC00C45AF7 /* CarDetailViewController.swift */,
 				D8C205D01F5B197200675E6E /* NotSupportedViewController.swift */,
 				49A3FBE41F09988100AA59C8 /* Assets.xcassets */,
 				49A3FBE61F09988100AA59C8 /* LaunchScreen.storyboard */,
@@ -264,6 +267,7 @@
 				49A3FBDC1F09988100AA59C8 /* AppDelegate.swift in Sources */,
 				49D206F31F124BDD00D7D622 /* SCNNode+Extensions.swift in Sources */,
 				49A3FBF51F099A5F00AA59C8 /* LocationManager.swift in Sources */,
+				495B8E681F9349CC00C45AF7 /* CarDetailViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
